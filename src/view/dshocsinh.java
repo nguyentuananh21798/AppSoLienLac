@@ -5,11 +5,19 @@
  */
 package view;
 
+import da.dao.HocSinhDAO;
+import da.dao.LopDAO;
+import da.model.HocSinh;
+import da.model.Lop;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -23,8 +31,52 @@ public class dshocsinh extends javax.swing.JFrame {
     
     public dshocsinh() {
         initComponents();
+        fillComboBox();
+//        selectCombobox();
     }
+     LopDAO lopDao = new LopDAO();
+    HocSinhDAO dao = new HocSinhDAO();
+    HocSinh model = new HocSinh();
 
+    
+        public void fillComboBox() {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) cbbLop.getModel();
+        if (model != null) {
+            model.removeAllElements();
+        }
+        try {
+            List<Lop> list = lopDao.select();
+            for (Lop lop : list) {
+                model.addElement(lop.getTenLop());
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Loi truy van du lieu");
+            e.printStackTrace();
+        }
+    }
+        public void selectCombobox() {
+
+        String tl = cbbLop.getSelectedItem().toString();
+        txt_lop.setText(tl);
+        System.out.println(tl);
+        DefaultTableModel model = (DefaultTableModel) tblGridView.getModel();
+        model.setRowCount(0);
+        try {
+            List<HocSinh> list = (List<HocSinh>) dao.selectTenLop(tl);
+            for (HocSinh hs : list) {
+                Object[] row = {
+                    hs.getMaHocSinh(),
+                    hs.getHoTen(),
+                    hs.getNgaySinh(),
+                    hs.getGioiTinh() ? "Nam" : "Nu"
+                };
+                model.addRow(row);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -56,8 +108,8 @@ public class dshocsinh extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        list = new javax.swing.JTable();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        tblGridView = new javax.swing.JTable();
+        cbbLop = new javax.swing.JComboBox<>();
         txt_lop = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
 
@@ -274,8 +326,8 @@ public class dshocsinh extends javax.swing.JFrame {
         jLabel6.setForeground(new java.awt.Color(96, 83, 150));
         jLabel6.setText("Lớp :");
 
-        list.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
-        list.setModel(new javax.swing.table.DefaultTableModel(
+        tblGridView.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        tblGridView.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {"1", "Majid Tunio", "02/02/2020", "Nam"},
                 {"2", "Azad Ali", null, null},
@@ -286,32 +338,32 @@ public class dshocsinh extends javax.swing.JFrame {
                 "Mã  học sinh", "Họ và tên", "Ngày sinh", "Giới tính"
             }
         ));
-        list.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        list.setIntercellSpacing(new java.awt.Dimension(0, 0));
-        list.setRowHeight(25);
-        list.setSelectionBackground(new java.awt.Color(0, 204, 106));
-        list.setShowVerticalLines(false);
-        list.getTableHeader().setReorderingAllowed(false);
-        list.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        tblGridView.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tblGridView.setIntercellSpacing(new java.awt.Dimension(0, 0));
+        tblGridView.setRowHeight(25);
+        tblGridView.setSelectionBackground(new java.awt.Color(0, 204, 106));
+        tblGridView.setShowVerticalLines(false);
+        tblGridView.getTableHeader().setReorderingAllowed(false);
+        tblGridView.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
-                listMouseDragged(evt);
+                tblGridViewMouseDragged(evt);
             }
         });
-        list.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblGridView.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                listMouseClicked(evt);
+                tblGridViewMouseClicked(evt);
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                listMouseReleased(evt);
+                tblGridViewMouseReleased(evt);
             }
         });
-        jScrollPane1.setViewportView(list);
+        jScrollPane1.setViewportView(tblGridView);
 
-        jComboBox1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10A1", "10A2", "10A3", "10A4", "10A5", "10A6", "10A7", "10A8", "10A9", "10A10", "10A11", "10A12" }));
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        cbbLop.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        cbbLop.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10A1", "10A2", "10A3", "10A4", "10A5", "10A6", "10A7", "10A8", "10A9", "10A10", "10A11", "10A12" }));
+        cbbLop.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox1ActionPerformed(evt);
+                cbbLopActionPerformed(evt);
             }
         });
 
@@ -354,7 +406,7 @@ public class dshocsinh extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txt_lop, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbbLop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(10, 10, 10)
@@ -392,7 +444,7 @@ public class dshocsinh extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
                             .addComponent(txt_lop, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(cbbLop, javax.swing.GroupLayout.Alignment.LEADING))
                         .addGap(19, 19, 19)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -446,21 +498,21 @@ public class dshocsinh extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
 
-    private void listMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listMouseDragged
+    private void tblGridViewMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblGridViewMouseDragged
         // TODO add your handling code here:
-    }//GEN-LAST:event_listMouseDragged
+    }//GEN-LAST:event_tblGridViewMouseDragged
 
-    private void listMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listMouseClicked
+    private void tblGridViewMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblGridViewMouseClicked
 
-    }//GEN-LAST:event_listMouseClicked
+    }//GEN-LAST:event_tblGridViewMouseClicked
 
-    private void listMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listMouseReleased
+    private void tblGridViewMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblGridViewMouseReleased
         if(evt.getButton()==MouseEvent.BUTTON3){
-            if(evt.isPopupTrigger()&&list.getSelectedRowCount()!=0){
+            if(evt.isPopupTrigger()&&tblGridView.getSelectedRowCount()!=0){
                 PopUpMenu.show(evt.getComponent(),evt.getX(),evt.getY());
             }
         }
-    }//GEN-LAST:event_listMouseReleased
+    }//GEN-LAST:event_tblGridViewMouseReleased
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
        cths ct= new cths();
@@ -468,10 +520,10 @@ public class dshocsinh extends javax.swing.JFrame {
         ct.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-       String selected = jComboBox1.getSelectedItem().toString();
+    private void cbbLopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbbLopActionPerformed
+       String selected = cbbLop.getSelectedItem().toString();
        txt_lop.setText(selected);
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    }//GEN-LAST:event_cbbLopActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         thongbao tb= new thongbao();
@@ -523,9 +575,9 @@ public class dshocsinh extends javax.swing.JFrame {
     private javax.swing.JPopupMenu PopUpMenu;
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnMinimize;
+    private javax.swing.JComboBox<String> cbbLop;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
@@ -543,8 +595,8 @@ public class dshocsinh extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTable list;
     private javax.swing.JPanel pnlHeader;
+    private javax.swing.JTable tblGridView;
     private javax.swing.JTextField txt_lop;
     // End of variables declaration//GEN-END:variables
 }
