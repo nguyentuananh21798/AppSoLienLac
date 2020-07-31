@@ -259,6 +259,11 @@ public class dangnhap extends javax.swing.JFrame {
 
         lbl_quenmk.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         lbl_quenmk.setText("Quên mật khẩu?");
+        lbl_quenmk.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lbl_quenmkMouseClicked(evt);
+            }
+        });
 
         lbl_hotro.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         lbl_hotro.setText("Trợ giúp.");
@@ -468,6 +473,12 @@ public class dangnhap extends javax.swing.JFrame {
             lbl_hotro.setText("Trợ giúp.");
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void lbl_quenmkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_quenmkMouseClicked
+       this.dispose();
+       quenmatkhau mk= new quenmatkhau();
+       mk.setVisible(true);
+    }//GEN-LAST:event_lbl_quenmkMouseClicked
 
     /**
      * @param args the command line arguments

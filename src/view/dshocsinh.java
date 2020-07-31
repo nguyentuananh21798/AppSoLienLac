@@ -28,18 +28,17 @@ public class dshocsinh extends javax.swing.JFrame {
     static boolean maximized = true;
     int xMouse;
     int yMouse;
-    
+
     public dshocsinh() {
         initComponents();
         fillComboBox();
-//        selectCombobox();
+        selectCombobox();
     }
-     LopDAO lopDao = new LopDAO();
+    LopDAO lopDao = new LopDAO();
     HocSinhDAO dao = new HocSinhDAO();
     HocSinh model = new HocSinh();
 
-    
-        public void fillComboBox() {
+    public void fillComboBox() {
         DefaultComboBoxModel model = (DefaultComboBoxModel) cbbLop.getModel();
         if (model != null) {
             model.removeAllElements();
@@ -54,11 +53,9 @@ public class dshocsinh extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-        public void selectCombobox() {
 
-        String tl = cbbLop.getSelectedItem().toString();
-        txt_lop.setText(tl);
-        System.out.println(tl);
+    public void selectCombobox() {
+        String tl = (String) cbbLop.getSelectedItem();
         DefaultTableModel model = (DefaultTableModel) tblGridView.getModel();
         model.setRowCount(0);
         try {
@@ -77,6 +74,7 @@ public class dshocsinh extends javax.swing.JFrame {
 
         }
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -311,6 +309,8 @@ public class dshocsinh extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jTextField1.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextField1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -329,10 +329,7 @@ public class dshocsinh extends javax.swing.JFrame {
         tblGridView.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         tblGridView.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"1", "Majid Tunio", "02/02/2020", "Nam"},
-                {"2", "Azad Ali", null, null},
-                {"3", "Nabeel Babar", null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "Mã  học sinh", "Họ và tên", "Ngày sinh", "Giới tính"
@@ -457,24 +454,24 @@ public class dshocsinh extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnExitMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExitMouseEntered
-        btnExit.setBackground(new Color(232,17,35));
+        btnExit.setBackground(new Color(232, 17, 35));
     }//GEN-LAST:event_btnExitMouseEntered
 
     private void btnExitMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExitMouseExited
-        btnExit.setBackground(new Color(255,255,255));
+        btnExit.setBackground(new Color(255, 255, 255));
     }//GEN-LAST:event_btnExitMouseExited
 
     private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
-       this.dispose();
-       
+        this.dispose();
+
     }//GEN-LAST:event_btnExitActionPerformed
 
     private void btnMinimizeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnMinimizeMouseEntered
-        btnMinimize.setBackground(new Color(229,229,229));
+        btnMinimize.setBackground(new Color(229, 229, 229));
     }//GEN-LAST:event_btnMinimizeMouseEntered
 
     private void btnMinimizeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnMinimizeMouseExited
-        btnMinimize.setBackground(new Color(255,255,255));
+        btnMinimize.setBackground(new Color(255, 255, 255));
     }//GEN-LAST:event_btnMinimizeMouseExited
 
     private void btnMinimizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMinimizeActionPerformed
@@ -487,7 +484,7 @@ public class dshocsinh extends javax.swing.JFrame {
     }//GEN-LAST:event_pnlHeaderMousePressed
 
     private void pnlHeaderMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pnlHeaderMouseDragged
-        if(maximized){
+        if (maximized) {
             int x = evt.getXOnScreen();
             int y = evt.getYOnScreen();
             this.setLocation(x - xMouse, y - yMouse);
@@ -507,32 +504,33 @@ public class dshocsinh extends javax.swing.JFrame {
     }//GEN-LAST:event_tblGridViewMouseClicked
 
     private void tblGridViewMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblGridViewMouseReleased
-        if(evt.getButton()==MouseEvent.BUTTON3){
-            if(evt.isPopupTrigger()&&tblGridView.getSelectedRowCount()!=0){
-                PopUpMenu.show(evt.getComponent(),evt.getX(),evt.getY());
+        if (evt.getButton() == MouseEvent.BUTTON3) {
+            if (evt.isPopupTrigger() && tblGridView.getSelectedRowCount() != 0) {
+                PopUpMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         }
     }//GEN-LAST:event_tblGridViewMouseReleased
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-       cths ct= new cths();
+        cths ct = new cths();
         this.dispose();
         ct.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void cbbLopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbbLopActionPerformed
-       String selected = cbbLop.getSelectedItem().toString();
+        String selected = (String) cbbLop.getSelectedItem();
         System.out.println(selected);
+        txt_lop.setText(selected);
     }//GEN-LAST:event_cbbLopActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        thongbao tb= new thongbao();
+        thongbao tb = new thongbao();
         tb.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-       themmoihs tm = new themmoihs();
-       tm.setVisible(maximized);
+        themmoihs tm = new themmoihs();
+        tm.setVisible(maximized);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**

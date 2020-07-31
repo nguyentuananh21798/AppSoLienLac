@@ -30,8 +30,7 @@ public class HocSinhDAO {
     }
 
     public HocSinh selectTenLop(String tenLop) {
-        String sql = " select mahocsinh,hoten,ngaysinh,gioitinh from hocsinh,lophoc \n"
-                + " where hocsinh.lop= lophoc.malop and lophoc.tenlop= ?";
+        String sql =" select mahocsinh,hoten,ngaysinh,gioitinh,tenlop from hocsinh  join lophoc on hocsinh.lop=lophoc.malop and lophoc.tenlop= ?" ;
         List<HocSinh> list = select(sql, tenLop);
         return list.size() > 0 ? list.get(0) : null;
     }
