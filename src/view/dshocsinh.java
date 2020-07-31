@@ -522,7 +522,7 @@ public class dshocsinh extends javax.swing.JFrame {
 
     private void cbbLopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbbLopActionPerformed
        String selected = cbbLop.getSelectedItem().toString();
-       txt_lop.setText(selected);
+        System.out.println(selected);
     }//GEN-LAST:event_cbbLopActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
