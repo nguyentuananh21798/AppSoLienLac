@@ -311,8 +311,8 @@
                                       <Component id="lbl_user" alignment="0" min="-2" pref="98" max="-2" attributes="0"/>
                                       <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
                                           <Component id="lbl_pass" alignment="0" min="-2" pref="98" max="-2" attributes="0"/>
-                                          <Component id="jTextField1" alignment="0" pref="223" max="32767" attributes="0"/>
-                                          <Component id="password" alignment="1" max="32767" attributes="0"/>
+                                          <Component id="txt_UserName" alignment="0" pref="223" max="32767" attributes="0"/>
+                                          <Component id="pas_PassWord" alignment="1" max="32767" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="lbl_quenmk" min="-2" max="-2" attributes="0"/>
@@ -342,13 +342,13 @@
                           <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                           <Component id="lbl_user" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jTextField1" min="-2" pref="31" max="-2" attributes="0"/>
+                          <Component id="txt_UserName" min="-2" pref="31" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jSeparator1" min="-2" pref="2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="lbl_pass" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="password" min="-2" pref="32" max="-2" attributes="0"/>
+                          <Component id="pas_PassWord" min="-2" pref="32" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jSeparator2" min="-2" pref="2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="49" max="-2" attributes="0"/>
@@ -364,7 +364,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JTextField" name="jTextField1">
+                <Component class="javax.swing.JTextField" name="txt_UserName">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Times New Roman" size="18" style="1"/>
@@ -375,7 +375,7 @@
                     </Property>
                   </Properties>
                   <Events>
-                    <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField1KeyPressed"/>
+                    <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_UserNameKeyPressed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JSeparator" name="jSeparator1">
@@ -398,7 +398,7 @@
                     <Property name="text" type="java.lang.String" value="M&#x1ead;t kh&#x1ea9;u :"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JPasswordField" name="password">
+                <Component class="javax.swing.JPasswordField" name="pas_PassWord">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Times New Roman" size="18" style="1"/>
@@ -408,7 +408,7 @@
                     </Property>
                   </Properties>
                   <Events>
-                    <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="passwordKeyPressed"/>
+                    <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="pas_PassWordKeyPressed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="btn_login">

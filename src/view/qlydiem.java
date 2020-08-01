@@ -5,11 +5,23 @@
  */
 package view;
 
+import da.dao.DiemDAO;
+import da.dao.LopDAO;
+import da.dao.MonDAO;
+import da.helper.DialogHelper;
+import da.model.Diem;
+import da.model.Lop;
+import da.model.Mon;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
+import java.sql.ResultSet;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -20,10 +32,137 @@ public class qlydiem extends javax.swing.JFrame {
     static boolean maximized = true;
     int xMouse;
     int yMouse;
+    String head[] = {"STT", "Mã học sinh", "Họ và tên", "Ngày sinh", "Điểm miệng 1", "Điểm miệng 2", "Điểm miệng 3", "Điểm 15p 1", "Điểm 15p 2", "Điểm 15p 3", "Điểm 1 tiết 1", "Điểm 1 tiết 2", "Điểm HK", "Điểm TB"};
+    DefaultTableModel model = new DefaultTableModel(head, 0);
+    DiemDAO dDao = new DiemDAO();
+    MonDAO mDAO = new MonDAO();
+    LopDAO lDAO = new LopDAO();
 
     public qlydiem() {
         initComponents();
         full();
+        this.loadToCboLop();
+        this.loadToCboMon();
+        model.setRowCount(0);
+        tblGridView.setModel(model);
+        String tenLop = (String) cbo_Lop.getSelectedItem();
+        String tenMon = (String) cbo_Mon.getSelectedItem();
+        this.loadToTable(tenLop, tenMon);
+    }
+
+    public void loadToCboMon() {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) cbo_Mon.getModel();
+        model.removeAllElements();
+        try {
+            List<Mon> list = mDAO.select();
+            for (Mon dv : list) {
+                model.addElement(dv.getTenMon());
+
+            }
+        } catch (Exception e) {
+            DialogHelper.alert(this, "Lỗi truy vẫn dữ liệu");
+        }
+    }
+
+    void loadToCboLop() {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) cbo_Lop.getModel();
+        model.removeAllElements();
+        try {
+            List<Lop> list = lDAO.select();
+            for (Lop dv : list) {
+                model.addElement(dv.getTenLop());
+            }
+        } catch (Exception e) {
+            DialogHelper.alert(this, "Lỗi truy vẫn dữ liệu");
+        }
+    }
+
+    public void loadToTable(String maLop, String maMon) {
+        model.setRowCount(0);
+        try {
+            ResultSet rs = dDao.findByEve(maLop, maMon);
+            while (rs.next()) {
+                Vector row = new Vector();
+                row.add("1");
+                row.add(rs.getString("mahocsinh"));
+                row.add(rs.getString("hoten"));
+                row.add(rs.getString("ngaysinh"));
+                row.add(rs.getInt("diemMieng1"));
+                row.add(rs.getInt("diemMieng2"));
+                row.add(rs.getInt("diemMieng3"));
+                row.add(rs.getInt("diem15phut1"));
+                row.add(rs.getInt("diem15phut2"));
+                row.add(rs.getInt("diem15phut3"));
+                row.add(rs.getFloat("diem1Tiet1"));
+                row.add(rs.getFloat("diem1Tiet2"));
+                row.add(rs.getFloat("diemthi"));
+                row.add(rs.getFloat("diemTBM"));
+                model.addRow(row);
+            }
+            tblGridView.setModel(model);
+        } catch (Exception e) {
+            DialogHelper.alert(this, "Lỗi truy vẫn dữ liệu");
+            e.printStackTrace();
+        }
+    }
+
+    public void tinhDiemTBM() {
+        Double m1 = Double.valueOf(txt_diemMieng1.getText());
+        Double m2 = Double.valueOf(txt_diemMieng2.getText());
+        Double m3 = Double.valueOf(txt_diemMieng3.getText());
+        Double diem15pl1 = Double.parseDouble(txt_15p1.getText());
+        Double diem15pl2 = Double.parseDouble(txt_15p2.getText());
+        Double diem15pl3 = Double.parseDouble(txt_15p3.getText());
+        Double diem45pl1 = Double.parseDouble(txt_45p1.getText());
+        Double diem45pl2 = Double.parseDouble(txt_45p2.getText());
+        Double diemHK = Double.parseDouble(txt_hk.getText());
+        Double TBM = (((double) Math.round((m1 + m2 + m3 + diem15pl1 + diem15pl2 + diem15pl3 + diem45pl1 * 2 + diem45pl2 * 2 + diemHK * 3) / 13) * 100) / 100);
+        lbl_diemTBM.setText(TBM.toString());
+    }
+
+    public void choPhepNhap() {
+        txt_diemMieng1.setEditable(true);
+        txt_diemMieng2.setEditable(true);
+        txt_diemMieng3.setEditable(true);
+        txt_15p1.setEditable(true);
+        txt_15p2.setEditable(true);
+        txt_15p3.setEditable(true);
+        txt_45p1.setEditable(true);
+        txt_45p2.setEditable(true);
+        txt_hk.setEditable(true);
+    }
+
+    public void tuChoiNhap() {
+        txt_diemMieng1.setEditable(false);
+        txt_diemMieng2.setEditable(false);
+        txt_diemMieng3.setEditable(false);
+        txt_15p1.setEditable(false);
+        txt_15p2.setEditable(false);
+        txt_15p3.setEditable(false);
+        txt_45p1.setEditable(false);
+        txt_45p2.setEditable(false);
+        txt_hk.setEditable(false);
+    }
+
+    public void Update() {
+        try {
+            Diem model = new Diem();
+            model.setDiemMieng1(Integer.parseInt(txt_diemMieng1.getText()));
+            model.setDiemMieng2(Integer.parseInt(txt_diemMieng2.getText()));
+            model.setDiemMieng3(Integer.parseInt(txt_diemMieng3.getText()));
+            model.setDiem15p1(Integer.parseInt(txt_15p1.getText()));
+            model.setDiem15p2(Integer.parseInt(txt_15p2.getText()));
+            model.setDiem15p3(Integer.parseInt(txt_15p3.getText()));
+            model.setDiem1Tiet1(Float.parseFloat(txt_45p1.getText()));
+            model.setDiem1Tiet2(Float.parseFloat(txt_45p2.getText()));
+            model.setDiemThi(Float.parseFloat(txt_hk.getText()));
+            model.setTBM(Float.parseFloat(lbl_diemTBM.getText()));
+            model.setMaHocSinh(lbl_mhs.getText());
+            dDao.update(model);
+        } catch (Exception e) {
+            DialogHelper.alert(this, "Lỗi truy vẫn dữ liệu");
+            e.printStackTrace();
+        }
     }
 
     void full() {
@@ -53,32 +192,32 @@ public class qlydiem extends javax.swing.JFrame {
         String txthk = tblGridView.getValueAt(row, 11).toString();
         String tb = tblGridView.getValueAt(row, 12).toString();
         if (m1.equals("0") && m2.equals("0") && m3.equals("0") && txt15p1.equals("0") && txt15p2.equals("0") && txt15p3.equals("0") && txt45p1.equals("0") && txt45p2.equals("0") && txthk.equals("0") && tb.equals("0")) {
-            txt_m1.setText(null);
-            txt_m2.setText(null);
-            txt_m3.setText(null);
+            txt_diemMieng1.setText(null);
+            txt_diemMieng2.setText(null);
+            txt_diemMieng3.setText(null);
             txt_15p1.setText(null);
             txt_15p2.setText(null);
             txt_15p3.setText(null);
             txt_45p1.setText(null);
             txt_45p2.setText(null);
             txt_hk.setText(null);
-            lbl_tb.setText(null);
+            lbl_diemTBM.setText(null);
 
         } else {
 
             lbl_mhs.setText(tblGridView.getValueAt(row, 1).toString());
             lbl_hvt.setText(tblGridView.getValueAt(row, 2).toString());
             lbl_ns.setText(tblGridView.getValueAt(row, 3).toString());
-            txt_m1.setText(tblGridView.getValueAt(row, 4).toString());
-            txt_m2.setText(tblGridView.getValueAt(row, 5).toString());
-            txt_m3.setText(tblGridView.getValueAt(row, 6).toString());
+            txt_diemMieng1.setText(tblGridView.getValueAt(row, 4).toString());
+            txt_diemMieng2.setText(tblGridView.getValueAt(row, 5).toString());
+            txt_diemMieng3.setText(tblGridView.getValueAt(row, 6).toString());
             txt_15p1.setText(tblGridView.getValueAt(row, 7).toString());
             txt_15p2.setText(tblGridView.getValueAt(row, 8).toString());
             txt_15p3.setText(tblGridView.getValueAt(row, 9).toString());
             txt_45p1.setText(tblGridView.getValueAt(row, 10).toString());
             txt_45p2.setText(tblGridView.getValueAt(row, 11).toString());
             txt_hk.setText(tblGridView.getValueAt(row, 12).toString());
-            lbl_tb.setText(tblGridView.getValueAt(row, 13).toString());
+            lbl_diemTBM.setText(tblGridView.getValueAt(row, 13).toString());
 
         }
     }
@@ -110,9 +249,9 @@ public class qlydiem extends javax.swing.JFrame {
         txt_hk = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        txt_m1 = new javax.swing.JTextField();
-        txt_m2 = new javax.swing.JTextField();
-        txt_m3 = new javax.swing.JTextField();
+        txt_diemMieng1 = new javax.swing.JTextField();
+        txt_diemMieng2 = new javax.swing.JTextField();
+        txt_diemMieng3 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         txt_15p1 = new javax.swing.JTextField();
         txt_15p2 = new javax.swing.JTextField();
@@ -124,11 +263,11 @@ public class qlydiem extends javax.swing.JFrame {
         jTextField3 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
-        lbl_tb = new javax.swing.JLabel();
+        lbl_diemTBM = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        cbo_Lop = new javax.swing.JComboBox<>();
         jLabel13 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        cbo_Mon = new javax.swing.JComboBox<>();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
@@ -216,12 +355,13 @@ public class qlydiem extends javax.swing.JFrame {
         pnlHeaderLayout.setHorizontalGroup(
             pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlHeaderLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMinimize, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMaximize, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnExit))
+                .addComponent(btnExit)
+                .addContainerGap())
         );
         pnlHeaderLayout.setVerticalGroup(
             pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -330,7 +470,6 @@ public class qlydiem extends javax.swing.JFrame {
 
         txt_hk.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txt_hk.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_hk.setText("9");
         txt_hk.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_hkActionPerformed(evt);
@@ -368,50 +507,47 @@ public class qlydiem extends javax.swing.JFrame {
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel8.setText("Kiểm tra miệng :");
 
-        txt_m1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        txt_m1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_m1.setText("9");
-        txt_m1.addMouseListener(new java.awt.event.MouseAdapter() {
+        txt_diemMieng1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        txt_diemMieng1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txt_diemMieng1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                txt_m1MouseClicked(evt);
+                txt_diemMieng1MouseClicked(evt);
             }
         });
-        txt_m1.addActionListener(new java.awt.event.ActionListener() {
+        txt_diemMieng1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_m1ActionPerformed(evt);
+                txt_diemMieng1ActionPerformed(evt);
             }
         });
-        txt_m1.addKeyListener(new java.awt.event.KeyAdapter() {
+        txt_diemMieng1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txt_m1KeyPressed(evt);
+                txt_diemMieng1KeyPressed(evt);
             }
         });
 
-        txt_m2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        txt_m2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_m2.setText("9");
-        txt_m2.addActionListener(new java.awt.event.ActionListener() {
+        txt_diemMieng2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        txt_diemMieng2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txt_diemMieng2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_m2ActionPerformed(evt);
+                txt_diemMieng2ActionPerformed(evt);
             }
         });
-        txt_m2.addKeyListener(new java.awt.event.KeyAdapter() {
+        txt_diemMieng2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txt_m2KeyPressed(evt);
+                txt_diemMieng2KeyPressed(evt);
             }
         });
 
-        txt_m3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        txt_m3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_m3.setText("9");
-        txt_m3.addActionListener(new java.awt.event.ActionListener() {
+        txt_diemMieng3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        txt_diemMieng3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txt_diemMieng3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_m3ActionPerformed(evt);
+                txt_diemMieng3ActionPerformed(evt);
             }
         });
-        txt_m3.addKeyListener(new java.awt.event.KeyAdapter() {
+        txt_diemMieng3.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txt_m3KeyPressed(evt);
+                txt_diemMieng3KeyPressed(evt);
             }
         });
 
@@ -420,7 +556,6 @@ public class qlydiem extends javax.swing.JFrame {
 
         txt_15p1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txt_15p1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_15p1.setText("9");
         txt_15p1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_15p1ActionPerformed(evt);
@@ -434,7 +569,6 @@ public class qlydiem extends javax.swing.JFrame {
 
         txt_15p2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txt_15p2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_15p2.setText("9");
         txt_15p2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_15p2ActionPerformed(evt);
@@ -448,7 +582,6 @@ public class qlydiem extends javax.swing.JFrame {
 
         txt_15p3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txt_15p3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_15p3.setText("9");
         txt_15p3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_15p3ActionPerformed(evt);
@@ -470,11 +603,11 @@ public class qlydiem extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txt_m1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_diemMieng1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(txt_m2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_diemMieng2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txt_m3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txt_diemMieng3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addGap(28, 28, 28)
@@ -491,10 +624,10 @@ public class qlydiem extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txt_m2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txt_m3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txt_diemMieng2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_diemMieng3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txt_m1, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(txt_diemMieng1, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -512,7 +645,6 @@ public class qlydiem extends javax.swing.JFrame {
 
         txt_45p1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txt_45p1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_45p1.setText("9");
         txt_45p1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_45p1ActionPerformed(evt);
@@ -526,7 +658,6 @@ public class qlydiem extends javax.swing.JFrame {
 
         txt_45p2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txt_45p2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txt_45p2.setText("9");
         txt_45p2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_45p2ActionPerformed(evt);
@@ -574,10 +705,9 @@ public class qlydiem extends javax.swing.JFrame {
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Điểm trung bình môn", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 18))); // NOI18N
 
-        lbl_tb.setFont(new java.awt.Font("Tahoma", 1, 21)); // NOI18N
-        lbl_tb.setForeground(new java.awt.Color(255, 0, 0));
-        lbl_tb.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbl_tb.setText("9");
+        lbl_diemTBM.setFont(new java.awt.Font("Tahoma", 1, 21)); // NOI18N
+        lbl_diemTBM.setForeground(new java.awt.Color(255, 0, 0));
+        lbl_diemTBM.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -585,31 +715,46 @@ public class qlydiem extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(74, Short.MAX_VALUE)
-                .addComponent(lbl_tb, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lbl_diemTBM, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(71, 71, 71))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(lbl_tb, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                .addComponent(lbl_diemTBM, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel12.setText("Lớp :");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbo_Lop.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbo_Lop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbo_LopActionPerformed(evt);
+            }
+        });
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel13.setText("Môn :");
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbo_Mon.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbo_Mon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbo_MonActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Nhập Excel");
 
         jButton3.setText("Xuất Excel");
 
         jButton4.setText("Cập Nhập");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -629,11 +774,11 @@ public class qlydiem extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel12)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbo_Lop, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel13)
                                 .addGap(18, 18, 18)
-                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(cbo_Mon, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(56, 56, 56)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -679,9 +824,9 @@ public class qlydiem extends javax.swing.JFrame {
                                 .addComponent(jTextField3)
                                 .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbo_Lop, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cbo_Mon, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -722,17 +867,17 @@ public class qlydiem extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_hkActionPerformed
 
-    private void txt_m1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_m1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txt_m1ActionPerformed
+    private void txt_diemMieng1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_diemMieng1ActionPerformed
+       
+    }//GEN-LAST:event_txt_diemMieng1ActionPerformed
 
-    private void txt_m2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_m2ActionPerformed
+    private void txt_diemMieng2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_diemMieng2ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txt_m2ActionPerformed
+    }//GEN-LAST:event_txt_diemMieng2ActionPerformed
 
-    private void txt_m3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_m3ActionPerformed
+    private void txt_diemMieng3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_diemMieng3ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txt_m3ActionPerformed
+    }//GEN-LAST:event_txt_diemMieng3ActionPerformed
 
     private void txt_15p1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_15p1ActionPerformed
         // TODO add your handling code here:
@@ -770,49 +915,56 @@ public class qlydiem extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_tblGridViewKeyReleased
 
-    private void txt_m1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txt_m1MouseClicked
+    private void txt_diemMieng1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txt_diemMieng1MouseClicked
 
-    }//GEN-LAST:event_txt_m1MouseClicked
+    }//GEN-LAST:event_txt_diemMieng1MouseClicked
 
-    private void txt_m1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_m1KeyPressed
+    private void txt_diemMieng1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_diemMieng1KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            txt_m2.requestFocus();
+            txt_diemMieng2.requestFocus();
+            tinhDiemTBM();
         }
-    }//GEN-LAST:event_txt_m1KeyPressed
+    }//GEN-LAST:event_txt_diemMieng1KeyPressed
 
-    private void txt_m2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_m2KeyPressed
+    private void txt_diemMieng2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_diemMieng2KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            txt_m3.requestFocus();
+            txt_diemMieng3.requestFocus();
+            tinhDiemTBM();
         }
-    }//GEN-LAST:event_txt_m2KeyPressed
+    }//GEN-LAST:event_txt_diemMieng2KeyPressed
 
-    private void txt_m3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_m3KeyPressed
+    private void txt_diemMieng3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_diemMieng3KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             txt_15p1.requestFocus();
+            tinhDiemTBM();
         }
-    }//GEN-LAST:event_txt_m3KeyPressed
+    }//GEN-LAST:event_txt_diemMieng3KeyPressed
 
     private void txt_15p1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_15p1KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             txt_15p2.requestFocus();
+            tinhDiemTBM();
         }
     }//GEN-LAST:event_txt_15p1KeyPressed
 
     private void txt_15p2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_15p2KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             txt_15p3.requestFocus();
+            tinhDiemTBM();
         }
     }//GEN-LAST:event_txt_15p2KeyPressed
 
     private void txt_15p3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_15p3KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             txt_45p1.requestFocus();
+            tinhDiemTBM();
         }
     }//GEN-LAST:event_txt_15p3KeyPressed
 
     private void txt_45p1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_45p1KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             txt_45p2.requestFocus();
+            tinhDiemTBM();
         }
     }//GEN-LAST:event_txt_45p1KeyPressed
 
@@ -823,6 +975,7 @@ public class qlydiem extends javax.swing.JFrame {
     private void txt_45p2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_45p2KeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             txt_hk.requestFocus();
+            tinhDiemTBM();
         }
     }//GEN-LAST:event_txt_45p2KeyPressed
 
@@ -853,6 +1006,25 @@ public class qlydiem extends javax.swing.JFrame {
     private void btnMinimizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMinimizeActionPerformed
         this.setState(Frame.ICONIFIED);
     }//GEN-LAST:event_btnMinimizeActionPerformed
+
+    private void cbo_LopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LopActionPerformed
+        String tenLop = (String) cbo_Lop.getSelectedItem();
+        String tenMon = (String) cbo_Mon.getSelectedItem();
+        this.loadToTable(tenLop, tenMon);
+    }//GEN-LAST:event_cbo_LopActionPerformed
+
+    private void cbo_MonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_MonActionPerformed
+        String tenLop = (String) cbo_Lop.getSelectedItem();
+        String tenMon = (String) cbo_Mon.getSelectedItem();
+        this.loadToTable(tenLop, tenMon);
+    }//GEN-LAST:event_cbo_MonActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        this.tinhDiemTBM();
+        this.Update();
+        this.loadToTable(cbo_Lop.getSelectedItem().toString(), cbo_Mon.getSelectedItem().toString());
+        tuChoiNhap();
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -894,12 +1066,12 @@ public class qlydiem extends javax.swing.JFrame {
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnMaximize;
     private javax.swing.JButton btnMinimize;
+    private javax.swing.JComboBox<String> cbo_Lop;
+    private javax.swing.JComboBox<String> cbo_Mon;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -916,10 +1088,10 @@ public class qlydiem extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JLabel lbl_diemTBM;
     private javax.swing.JLabel lbl_hvt;
     private javax.swing.JLabel lbl_mhs;
     private javax.swing.JLabel lbl_ns;
-    private javax.swing.JLabel lbl_tb;
     private javax.swing.JPanel pnlHeader;
     private javax.swing.JTable tblGridView;
     private javax.swing.JTextField txt_15p1;
@@ -927,9 +1099,9 @@ public class qlydiem extends javax.swing.JFrame {
     private javax.swing.JTextField txt_15p3;
     private javax.swing.JTextField txt_45p1;
     private javax.swing.JTextField txt_45p2;
+    private javax.swing.JTextField txt_diemMieng1;
+    private javax.swing.JTextField txt_diemMieng2;
+    private javax.swing.JTextField txt_diemMieng3;
     private javax.swing.JTextField txt_hk;
-    private javax.swing.JTextField txt_m1;
-    private javax.swing.JTextField txt_m2;
-    private javax.swing.JTextField txt_m3;
     // End of variables declaration//GEN-END:variables
 }

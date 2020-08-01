@@ -6,6 +6,10 @@
 package view;
 
 import AppPackage.AnimationClass;
+import da.dao.UserDAO;
+import da.helper.DialogHelper;
+import da.helper.ShareHelper;
+import da.model.User;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
@@ -22,10 +26,38 @@ public class dangnhap extends javax.swing.JFrame {
     int xMouse;
     int yMouse;
     AnimationClass ac = new AnimationClass();
+    UserDAO uDAO = new UserDAO();
 
     public dangnhap() {
         initComponents();
         slidershow();
+    }
+
+    public void Login() {
+        String manv = txt_UserName.getText();
+        String matKhau = new String(pas_PassWord.getPassword());
+//        NhanVien nv = new NhanVien(manv, matKhau);
+//        JdbcHelper.User = nv;
+        try {
+            User nhanVien = uDAO.findById(manv);
+            if (nhanVien != null) {
+                String matKhau2 = nhanVien.getPassWord();
+                if (matKhau.equals(matKhau2)) {
+                    ShareHelper.User = nhanVien;                  
+                    loading lod= new loading();
+                    lod.setVisible(true);
+                   
+                    this.dispose();
+                } else {
+                    DialogHelper.alert(this, "Sai mật khẩu!");
+                }
+            } else {
+                DialogHelper.alert(this, "Sai tên đăng nhập!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            DialogHelper.alert(this, "Lỗi truy vấn dữ liệu!");
+        }
     }
 
     public void slidershow() {
@@ -93,12 +125,12 @@ public class dangnhap extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        txt_UserName = new javax.swing.JTextField();
         jSeparator1 = new javax.swing.JSeparator();
         lbl_user = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         lbl_pass = new javax.swing.JLabel();
-        password = new javax.swing.JPasswordField();
+        pas_PassWord = new javax.swing.JPasswordField();
         btn_login = new javax.swing.JButton();
         lbl_quenmk = new javax.swing.JLabel();
         lbl_hotro = new javax.swing.JLabel();
@@ -225,12 +257,12 @@ public class dangnhap extends javax.swing.JFrame {
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
-        jTextField1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jTextField1.setToolTipText("");
-        jTextField1.setBorder(null);
-        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+        txt_UserName.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_UserName.setToolTipText("");
+        txt_UserName.setBorder(null);
+        txt_UserName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                jTextField1KeyPressed(evt);
+                txt_UserNameKeyPressed(evt);
             }
         });
 
@@ -240,11 +272,11 @@ public class dangnhap extends javax.swing.JFrame {
         lbl_pass.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         lbl_pass.setText("Mật khẩu :");
 
-        password.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        password.setBorder(null);
-        password.addKeyListener(new java.awt.event.KeyAdapter() {
+        pas_PassWord.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        pas_PassWord.setBorder(null);
+        pas_PassWord.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                passwordKeyPressed(evt);
+                pas_PassWordKeyPressed(evt);
             }
         });
 
@@ -280,8 +312,8 @@ public class dangnhap extends javax.swing.JFrame {
                             .addComponent(lbl_user, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(lbl_pass, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                .addComponent(password))
+                                .addComponent(txt_UserName, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                                .addComponent(pas_PassWord))
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addComponent(lbl_quenmk)
                                 .addGap(84, 84, 84)
@@ -301,13 +333,13 @@ public class dangnhap extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addComponent(lbl_user)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txt_UserName, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lbl_pass)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pas_PassWord, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(49, 49, 49)
@@ -433,24 +465,22 @@ public class dangnhap extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_pnlHeaderMouseDragged
 
-    private void jTextField1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyPressed
+    private void txt_UserNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_UserNameKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            password.requestFocus();
+            pas_PassWord.requestFocus();
         }
-    }//GEN-LAST:event_jTextField1KeyPressed
+    }//GEN-LAST:event_txt_UserNameKeyPressed
 
-    private void passwordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyPressed
+    private void pas_PassWordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pas_PassWordKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             Dashboard dsh = new Dashboard();
             this.dispose();
             dsh.setVisible(true);
         }
-    }//GEN-LAST:event_passwordKeyPressed
+    }//GEN-LAST:event_pas_PassWordKeyPressed
 
     private void btn_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loginActionPerformed
-        Dashboard dsh = new Dashboard();
-        this.dispose();
-        dsh.setVisible(true);
+  this.Login();
     }//GEN-LAST:event_btn_loginActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
@@ -475,9 +505,9 @@ public class dangnhap extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void lbl_quenmkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_quenmkMouseClicked
-       this.dispose();
-       quenmatkhau mk= new quenmatkhau();
-       mk.setVisible(true);
+        this.dispose();
+        quenmatkhau mk = new quenmatkhau();
+        mk.setVisible(true);
     }//GEN-LAST:event_lbl_quenmkMouseClicked
 
     /**
@@ -532,14 +562,14 @@ public class dangnhap extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lbl_hotro;
     private javax.swing.JLabel lbl_login;
     private javax.swing.JLabel lbl_pass;
     private javax.swing.JLabel lbl_quenmk;
     private javax.swing.JLabel lbl_user;
     private javax.swing.JPanel left;
-    private javax.swing.JPasswordField password;
+    private javax.swing.JPasswordField pas_PassWord;
     private javax.swing.JPanel pnlHeader;
+    private javax.swing.JTextField txt_UserName;
     // End of variables declaration//GEN-END:variables
 }
