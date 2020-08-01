@@ -521,6 +521,7 @@ public class dshocsinh extends javax.swing.JFrame {
         String selected = (String) cbbLop.getSelectedItem();
         System.out.println(selected);
         txt_lop.setText(selected);
+        selectCombobox();
     }//GEN-LAST:event_cbbLopActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed

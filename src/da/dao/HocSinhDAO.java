@@ -29,27 +29,25 @@ public class HocSinhDAO {
         return select(sql, "%" + keyword + "%");
     }
 
-    public HocSinh selectTenLop(String tenLop) {
-        String sql =" select mahocsinh,hoten,ngaysinh,gioitinh,tenlop from hocsinh  join lophoc on hocsinh.lop=lophoc.malop and lophoc.tenlop= ?" ;
+    public List<HocSinh> selectTenLop(String tenLop) {
+        String sql = " select mahocsinh,hoten,ngaysinh,gioitinh,tenlop from hocsinh  join lophoc on hocsinh.lop=lophoc.malop and lophoc.tenlop= ?";
         List<HocSinh> list = select(sql, tenLop);
-        return list.size() > 0 ? list.get(0) : null;
+        return list;
     }
 
     private List<HocSinh> select(String sql, Object... args) {
         List<HocSinh> list = new ArrayList<>();
         try {
             ResultSet rs = null;
-            try {
-                rs = JdbcHelper.executeQuery(sql, args);
-                while (rs.next()) {
-                    HocSinh model = readFromResultSet(rs);
-                    list.add(model);
 
-                }
+            rs = JdbcHelper.executeQuery(sql, args);
+            while (rs.next()) {
+                HocSinh model = readFromResultSet(rs);
+                list.add(model);
 
-            } finally {
-                rs.getStatement().getConnection().close();
             }
+           rs.getStatement().getConnection().close();
+
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -63,14 +61,14 @@ public class HocSinhDAO {
         model.setHoTen(rs.getString("hoten"));
         model.setGioiTinh(rs.getBoolean("gioitinh"));
         model.setNgaySinh(rs.getString("ngaysinh"));
-        model.setDiaChi(rs.getString("diachi"));
-        model.setDienThoai(rs.getString("dienthoai"));
-        model.setEmail(rs.getString("email"));
-        model.setLop(rs.getString("lop"));
-        model.setDanToc(rs.getString("dantoc"));
-        model.setTongiao(rs.getString("tongiao"));
-        model.setNgayVaoDoan(rs.getDate("ngayvaodoan"));
-        model.setTrangThai(rs.getString("trangthai"));
+        //model.setDiaChi(rs.getString("diachi"));
+//        model.setDienThoai(rs.getString("dienthoai"));
+//        model.setEmail(rs.getString("email"));
+//        model.setLop(rs.getString("lop"));
+//        model.setDanToc(rs.getString("dantoc"));
+//        model.setTongiao(rs.getString("tongiao"));
+//        model.setNgayVaoDoan(rs.getDate("ngayvaodoan"));
+//        model.setTrangThai(rs.getString("trangthai"));
         return model;
     }
 
