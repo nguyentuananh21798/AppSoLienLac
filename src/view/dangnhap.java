@@ -36,8 +36,7 @@ public class dangnhap extends javax.swing.JFrame {
     public void Login() {
         String manv = txt_UserName.getText();
         String matKhau = new String(pas_PassWord.getPassword());
-//        NhanVien nv = new NhanVien(manv, matKhau);
-//        JdbcHelper.User = nv;
+
         try {
             User nhanVien = uDAO.findById(manv);
             if (nhanVien != null) {
