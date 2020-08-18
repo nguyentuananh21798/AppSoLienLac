@@ -15,15 +15,25 @@ public class User {
     private String passWord;
     private String role;
     private String ID;
+    private String email;
     
     public User(){}
 
-    public User(int stt, String userName, String passWord, String role, String ID){
+    public User(int stt, String userName, String passWord, String role, String ID,String email){
         this.stt= stt;
         this.userName = userName;
         this.passWord = passWord;
         this.role = role;
         this.ID = ID;
+        this.email=email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
     
     public int getStt() {

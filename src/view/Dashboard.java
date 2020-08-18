@@ -5,6 +5,7 @@
  */
 package view;
 
+import da.helper.ShareHelper;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
@@ -22,6 +23,7 @@ public class Dashboard extends javax.swing.JFrame {
     
     public Dashboard() {
         initComponents();
+        lbl_DangNhap.setText(ShareHelper.User.getUserName());
     }
 
     /**
@@ -39,7 +41,7 @@ public class Dashboard extends javax.swing.JFrame {
         btnMinimize = new javax.swing.JButton();
         pnlMenu = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        lbl_DangNhap = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         btnTimeline = new javax.swing.JButton();
@@ -185,9 +187,9 @@ public class Dashboard extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/User.png"))); // NOI18N
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(44, 62, 80));
-        jLabel2.setText("Nguyễn Xuân Bách");
+        lbl_DangNhap.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        lbl_DangNhap.setForeground(new java.awt.Color(44, 62, 80));
+        lbl_DangNhap.setText("Nguyễn Xuân Bách");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(127, 140, 141));
@@ -302,7 +304,7 @@ public class Dashboard extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(pnlMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pnlMenuLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
+                                .addComponent(lbl_DangNhap)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel17))
                             .addGroup(pnlMenuLayout.createSequentialGroup()
@@ -322,7 +324,7 @@ public class Dashboard extends javax.swing.JFrame {
                         .addGroup(pnlMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pnlMenuLayout.createSequentialGroup()
                                 .addGap(14, 14, 14)
-                                .addComponent(jLabel2))
+                                .addComponent(lbl_DangNhap))
                             .addComponent(jLabel17))
                         .addGap(5, 5, 5)
                         .addGroup(pnlMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -412,10 +414,10 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel12.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 jLabel12AncestorAdded(evt);
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
 
@@ -447,9 +449,19 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("Thống kê");
         jLabel8.setOpaque(true);
+        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel8MouseClicked(evt);
+            }
+        });
 
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/bar-chart.png"))); // NOI18N
+        jLabel13.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel13MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -836,6 +848,18 @@ public class Dashboard extends javax.swing.JFrame {
        dm.setVisible(true);
     }//GEN-LAST:event_jPanel2MouseClicked
 
+    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
+      thongke tk = new thongke();
+       this.setState(Frame.ICONIFIED);
+       tk.setVisible(true);
+    }//GEN-LAST:event_jLabel8MouseClicked
+
+    private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
+        thongke tk = new thongke();
+       this.setState(Frame.ICONIFIED);
+       tk.setVisible(true);
+    }//GEN-LAST:event_jLabel13MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -889,7 +913,6 @@ public class Dashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -915,6 +938,7 @@ public class Dashboard extends javax.swing.JFrame {
     private javax.swing.JLabel lblQA;
     private javax.swing.JLabel lblTimeline;
     private javax.swing.JLabel lblTrending;
+    private javax.swing.JLabel lbl_DangNhap;
     private javax.swing.JPanel pnlBody;
     private javax.swing.JPanel pnlHeader;
     private javax.swing.JPanel pnlMenu;

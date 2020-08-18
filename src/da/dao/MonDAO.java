@@ -22,10 +22,21 @@ public class MonDAO {
      JdbcHelper Jdbc = new JdbcHelper();
 
     public List<Mon> select() {
-        String sql = "SELECT * FROM mon";
+        String sql = "SELECT * FROM mon where hinhthucdanhgia ='0' ";
         return select(sql);
     }
-
+    
+    public Mon selectByName(String tenMon){
+        String sql = "select * from mon where tenmon = ?";
+        List<Mon> list = select(sql,tenMon);
+        return list.size() > 0 ? list.get(0) : null;
+    }
+    
+    public List<Mon> selectByDG() {
+        String sql = "SELECT * FROM mon where hinhthucdanhgia ='1' ";
+        return select(sql);
+    }
+    
    
     private List<Mon> select(String sql, Object... args) {
         List<Mon> list = new ArrayList<>();

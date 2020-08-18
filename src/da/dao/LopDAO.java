@@ -6,6 +6,7 @@
 package da.dao;
 
 import da.helper.JdbcHelper;
+import da.model.HocSinh;
 import da.model.Lop;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,9 +54,23 @@ public class LopDAO {
     }
      
       public Lop findByName(String tenLop) {
-        String sql = "SELECT * FROM lophoc WHERE tenlop=?";
+        String sql = "select * from hocsinh  join lophoc on hocsinh.lop=lophoc.malop and lophoc.tenlop= ? and hocsinh.xoa=1";
         List<Lop> list = select(sql, tenLop);
         return list.size() > 0 ? list.get(0) : null;
     }
+      
+      public Lop select2(String mahocsinh) {
+        String sql = "select * from hocsinh  join lophoc on hocsinh.lop=lophoc.malop and hocsinh.mahocsinh= ?";
+        List<Lop> list = select(sql, mahocsinh);
+       
+        return list.size() > 0 ? list.get(0) : null;
+    }
+        public List<Lop> select3(String mahocsinh) {
+        String sql = "select * from hocsinh  join lophoc on hocsinh.lop=lophoc.malop and hocsinh.mahocsinh= ?";
+        List<Lop> list = select(sql, mahocsinh);
+       
+        return list;
+    }
+     
     
 }

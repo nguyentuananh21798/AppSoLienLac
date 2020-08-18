@@ -6,6 +6,7 @@
 package view;
 
 import AppPackage.AnimationClass;
+import da.dao.RanDom;
 import da.dao.UserDAO;
 import da.helper.DialogHelper;
 import da.helper.ShareHelper;
@@ -14,7 +15,16 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,10 +37,43 @@ public class dangnhap extends javax.swing.JFrame {
     int yMouse;
     AnimationClass ac = new AnimationClass();
     UserDAO uDAO = new UserDAO();
+    int numberOfCharactor = 8;
+    RanDom rand = new RanDom();
+    String code = rand.randomAlphaNumeric(numberOfCharactor);
 
     public dangnhap() {
         initComponents();
         slidershow();
+    }
+
+    public void updatepass() {
+
+        String tentk = txt_tentk.getText();
+        String mk1 = new String(txt_mk1.getPassword());
+        String mk2 = new String(txt_mk2.getPassword());
+
+        try {
+            User nhanVien = uDAO.findById(tentk);
+            if (nhanVien != null) {
+                if (mk1.equals(mk2)) {
+                    uDAO.update2(tentk, mk2);
+                    pnlBody.removeAll();
+                    pnlBody.repaint();
+                    pnlBody.revalidate();
+                    pnlBody.add(pnlNews4);
+                    pnlBody.repaint();
+                    pnlBody.revalidate();
+                } else {
+                    lbl_tbdmk.setText("Vui lòng kiểm tra lại thông tin");
+                }
+            } else {
+                lbl_tbdmk.setText("Vui lòng kiểm tra lại thông tin");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            lbl_tbdmk.setText("Vui lòng kiểm tra lại thông tin");
+        }
+
     }
 
     public void Login() {
@@ -42,16 +85,18 @@ public class dangnhap extends javax.swing.JFrame {
             if (nhanVien != null) {
                 String matKhau2 = nhanVien.getPassWord();
                 if (matKhau.equals(matKhau2)) {
-                    ShareHelper.User = nhanVien;                  
-                    loading lod= new loading();
+                    ShareHelper.User = nhanVien;
+                    loading lod = new loading();
+                    
                     lod.setVisible(true);
-                   
+                  
                     this.dispose();
+                 
                 } else {
-                    DialogHelper.alert(this, "Sai mật khẩu!");
+                    txt_tbdn.setText("Sai mật khẩu");
                 }
             } else {
-                DialogHelper.alert(this, "Sai tên đăng nhập!");
+                txt_tbdn.setText("Sai tên đăng nhập");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,6 +148,77 @@ public class dangnhap extends javax.swing.JFrame {
         }).start();
     }
 
+    public void checkuser(String code) {
+        String taikhoan = txt_user.getText();
+        String email = txt_email.getText();
+        try {
+            User nhanVien = uDAO.findById(taikhoan);
+            if (nhanVien != null) {
+                String email2 = nhanVien.getEmail();
+                if (email.equals(email2)) {
+                    pnlBody.removeAll();
+                    pnlBody.repaint();
+                    pnlBody.revalidate();
+                    pnlBody.add(pnlNews2);
+                    pnlBody.repaint();
+                    pnlBody.revalidate();
+
+                    this.sendmail(email2, code);
+                } else {
+                    lbl_tbuser.setText("Sai Email");
+                }
+            } else {
+                lbl_tbuser.setText("Sai tên đăng nhập");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            DialogHelper.alert(this, "Lỗi truy vấn dữ liệu!");
+        }
+    }
+
+    public void checkcode(String code) {
+        String code2 = txt_code.getText();
+        if (code2.equals(code)) {
+            pnlBody.removeAll();
+            pnlBody.repaint();
+            pnlBody.revalidate();
+            pnlBody.add(pnlNews3);
+            pnlBody.repaint();
+            pnlBody.revalidate();
+        } else {
+            lbl_tbcode.setText("Vui lòng nhập đúng mã xác nhận !");
+        }
+    }
+
+    public void sendmail(String email, String code) {
+        try {
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.port", "587");
+            props.put("mail.transport.protocol", "smtp");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.debug", "true");
+            Authenticator auth;
+            auth = new Authenticator() {
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication("nguyenbach04062000@gmail.com", "xuanbach123");
+                }
+            };
+            Session session = Session.getInstance(props, auth);
+            Message msg = new MimeMessage(session);
+
+            msg.setFrom(new InternetAddress("nguyenbach04062000@gmail.com"));
+            msg.setSubject("Mã Xác Nhận Tài Khoản");
+            msg.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
+            msg.setContent(" Mã xác nhận tài khoản của bạn : " + code, "text/html");
+
+            Transport.send(msg);
+        } catch (Exception ex) {
+            System.out.print(ex.toString());
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -120,20 +236,62 @@ public class dangnhap extends javax.swing.JFrame {
         img2 = new javax.swing.JLabel();
         img3 = new javax.swing.JLabel();
         img1 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
+        pnlBody = new javax.swing.JPanel();
+        pnlNews = new javax.swing.JPanel();
+        pnlTimeline1 = new javax.swing.JPanel();
+        lbl_login = new javax.swing.JLabel();
+        lbl_user = new javax.swing.JLabel();
         txt_UserName = new javax.swing.JTextField();
         jSeparator1 = new javax.swing.JSeparator();
-        lbl_user = new javax.swing.JLabel();
-        jSeparator2 = new javax.swing.JSeparator();
         lbl_pass = new javax.swing.JLabel();
         pas_PassWord = new javax.swing.JPasswordField();
+        jSeparator2 = new javax.swing.JSeparator();
         btn_login = new javax.swing.JButton();
         lbl_quenmk = new javax.swing.JLabel();
         lbl_hotro = new javax.swing.JLabel();
-        lbl_login = new javax.swing.JLabel();
+        txt_tbdn = new javax.swing.JLabel();
+        pnlNews1 = new javax.swing.JPanel();
+        pnlTimeline2 = new javax.swing.JPanel();
+        lbl_login1 = new javax.swing.JLabel();
+        lbl_user1 = new javax.swing.JLabel();
+        txt_user = new javax.swing.JTextField();
+        jSeparator3 = new javax.swing.JSeparator();
+        lbl_pass1 = new javax.swing.JLabel();
+        jSeparator4 = new javax.swing.JSeparator();
+        btn_login1 = new javax.swing.JButton();
+        lbl_tbuser = new javax.swing.JLabel();
+        txt_email = new javax.swing.JTextField();
+        pnlNews2 = new javax.swing.JPanel();
+        pnlTimeline3 = new javax.swing.JPanel();
+        lbl_login2 = new javax.swing.JLabel();
+        lbl_user2 = new javax.swing.JLabel();
+        txt_code = new javax.swing.JTextField();
+        jSeparator5 = new javax.swing.JSeparator();
+        lbl_pass2 = new javax.swing.JLabel();
+        btn_login2 = new javax.swing.JButton();
+        lbl_tbcode = new javax.swing.JLabel();
+        pnlNews3 = new javax.swing.JPanel();
+        pnlTimeline5 = new javax.swing.JPanel();
+        lbl_login4 = new javax.swing.JLabel();
+        lbl_user4 = new javax.swing.JLabel();
+        jSeparator7 = new javax.swing.JSeparator();
+        lbl_pass4 = new javax.swing.JLabel();
+        txt_mk2 = new javax.swing.JPasswordField();
+        jSeparator8 = new javax.swing.JSeparator();
+        btn_login4 = new javax.swing.JButton();
+        lbl_tbdmk = new javax.swing.JLabel();
+        txt_mk1 = new javax.swing.JPasswordField();
+        lbl_user7 = new javax.swing.JLabel();
+        txt_tentk = new javax.swing.JTextField();
+        jSeparator9 = new javax.swing.JSeparator();
+        pnlNews4 = new javax.swing.JPanel();
+        pnlTimeline6 = new javax.swing.JPanel();
+        lbl_login5 = new javax.swing.JLabel();
+        lbl_user5 = new javax.swing.JLabel();
+        btn_login5 = new javax.swing.JButton();
+        lbl_user6 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
 
@@ -248,13 +406,22 @@ public class dangnhap extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 31, 470, 680));
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel7.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tải xuống.png"))); // NOI18N
 
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        pnlBody.setLayout(new java.awt.CardLayout());
+
+        pnlNews.setBackground(new java.awt.Color(255, 255, 255));
+
+        pnlTimeline1.setBackground(new java.awt.Color(255, 255, 255));
+
+        lbl_login.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        lbl_login.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_login.setText("Đăng nhập");
+
+        lbl_user.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_user.setText("Tài khoản :");
 
         txt_UserName.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         txt_UserName.setToolTipText("");
@@ -264,9 +431,6 @@ public class dangnhap extends javax.swing.JFrame {
                 txt_UserNameKeyPressed(evt);
             }
         });
-
-        lbl_user.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        lbl_user.setText("Tài khoản :");
 
         lbl_pass.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         lbl_pass.setText("Mật khẩu :");
@@ -279,7 +443,7 @@ public class dangnhap extends javax.swing.JFrame {
             }
         });
 
-        btn_login.setBackground(new java.awt.Color(0, 0, 0));
+        btn_login.setBackground(new java.awt.Color(255, 255, 255));
         btn_login.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
         btn_login.setText("Đăng Nhập");
         btn_login.addActionListener(new java.awt.event.ActionListener() {
@@ -299,60 +463,516 @@ public class dangnhap extends javax.swing.JFrame {
         lbl_hotro.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         lbl_hotro.setText("Trợ giúp.");
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        txt_tbdn.setFont(new java.awt.Font("Tahoma", 3, 16)); // NOI18N
+        txt_tbdn.setForeground(new java.awt.Color(255, 0, 0));
+        txt_tbdn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout pnlTimeline1Layout = new javax.swing.GroupLayout(pnlTimeline1);
+        pnlTimeline1.setLayout(pnlTimeline1Layout);
+        pnlTimeline1Layout.setHorizontalGroup(
+            pnlTimeline1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline1Layout.createSequentialGroup()
+                .addGroup(pnlTimeline1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTimeline1Layout.createSequentialGroup()
+                        .addGap(79, 79, 79)
+                        .addGroup(pnlTimeline1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lbl_pass, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSeparator2)
                             .addComponent(lbl_user, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(lbl_pass, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(txt_UserName, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                .addComponent(pas_PassWord))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
+                            .addComponent(txt_UserName, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jSeparator1)
+                            .addComponent(pas_PassWord)
+                            .addComponent(txt_tbdn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(pnlTimeline1Layout.createSequentialGroup()
                                 .addComponent(lbl_quenmk)
-                                .addGap(84, 84, 84)
-                                .addComponent(lbl_hotro)))
-                        .addContainerGap(25, Short.MAX_VALUE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btn_login, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lbl_hotro))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlTimeline1Layout.createSequentialGroup()
+                                .addGap(35, 35, 35)
+                                .addComponent(btn_login, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18))))
+                    .addGroup(pnlTimeline1Layout.createSequentialGroup()
+                        .addGap(112, 112, 112)
+                        .addComponent(lbl_login, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(24, 24, 24)
+        pnlTimeline1Layout.setVerticalGroup(
+            pnlTimeline1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline1Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(lbl_login)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
                 .addComponent(lbl_user)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_UserName, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(30, 30, 30)
                 .addComponent(lbl_pass)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pas_PassWord, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
+                .addGap(27, 27, 27)
+                .addComponent(txt_tbdn, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(btn_login, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbl_hotro, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbl_quenmk, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(46, 46, 46))
+                .addGap(18, 18, 18)
+                .addGroup(pnlTimeline1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbl_quenmk, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbl_hotro, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
-        lbl_login.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
-        lbl_login.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        lbl_login.setText("Đăng nhập");
+        javax.swing.GroupLayout pnlNewsLayout = new javax.swing.GroupLayout(pnlNews);
+        pnlNews.setLayout(pnlNewsLayout);
+        pnlNewsLayout.setHorizontalGroup(
+            pnlNewsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 452, Short.MAX_VALUE)
+            .addGroup(pnlNewsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlNewsLayout.createSequentialGroup()
+                    .addComponent(pnlTimeline1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        pnlNewsLayout.setVerticalGroup(
+            pnlNewsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 537, Short.MAX_VALUE)
+            .addGroup(pnlNewsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(pnlTimeline1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnlBody.add(pnlNews, "card4");
+
+        pnlNews1.setBackground(new java.awt.Color(245, 245, 245));
+
+        pnlTimeline2.setBackground(new java.awt.Color(255, 255, 255));
+
+        lbl_login1.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        lbl_login1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_login1.setText("Quên mật khẩu");
+
+        lbl_user1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_user1.setText("Tài khoản :");
+
+        txt_user.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_user.setToolTipText("");
+        txt_user.setBorder(null);
+        txt_user.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_userKeyPressed(evt);
+            }
+        });
+
+        lbl_pass1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_pass1.setText("Email");
+
+        btn_login1.setBackground(new java.awt.Color(0, 0, 0));
+        btn_login1.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
+        btn_login1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8_next_page_32px_1.png"))); // NOI18N
+        btn_login1.setText("Tiếp Theo");
+        btn_login1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_login1ActionPerformed(evt);
+            }
+        });
+
+        lbl_tbuser.setFont(new java.awt.Font("Tahoma", 3, 16)); // NOI18N
+        lbl_tbuser.setForeground(new java.awt.Color(255, 51, 51));
+        lbl_tbuser.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        txt_email.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_email.setToolTipText("");
+        txt_email.setBorder(null);
+        txt_email.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_emailKeyPressed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlTimeline2Layout = new javax.swing.GroupLayout(pnlTimeline2);
+        pnlTimeline2.setLayout(pnlTimeline2Layout);
+        pnlTimeline2Layout.setHorizontalGroup(
+            pnlTimeline2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline2Layout.createSequentialGroup()
+                .addGroup(pnlTimeline2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTimeline2Layout.createSequentialGroup()
+                        .addGap(79, 79, 79)
+                        .addGroup(pnlTimeline2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(lbl_pass1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                            .addComponent(lbl_user1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_user)
+                            .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                            .addComponent(lbl_tbuser, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txt_email)))
+                    .addGroup(pnlTimeline2Layout.createSequentialGroup()
+                        .addGap(112, 112, 112)
+                        .addComponent(lbl_login1, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlTimeline2Layout.createSequentialGroup()
+                        .addGap(105, 105, 105)
+                        .addComponent(btn_login1, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(82, Short.MAX_VALUE))
+        );
+        pnlTimeline2Layout.setVerticalGroup(
+            pnlTimeline2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline2Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(lbl_login1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                .addComponent(lbl_user1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_user, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(lbl_pass1)
+                .addGap(8, 8, 8)
+                .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lbl_tbuser, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
+                .addComponent(btn_login1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(76, 76, 76))
+        );
+
+        javax.swing.GroupLayout pnlNews1Layout = new javax.swing.GroupLayout(pnlNews1);
+        pnlNews1.setLayout(pnlNews1Layout);
+        pnlNews1Layout.setHorizontalGroup(
+            pnlNews1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 452, Short.MAX_VALUE)
+            .addGroup(pnlNews1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlNews1Layout.createSequentialGroup()
+                    .addComponent(pnlTimeline2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        pnlNews1Layout.setVerticalGroup(
+            pnlNews1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 537, Short.MAX_VALUE)
+            .addGroup(pnlNews1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(pnlTimeline2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnlBody.add(pnlNews1, "card4");
+
+        pnlNews2.setBackground(new java.awt.Color(245, 245, 245));
+
+        pnlTimeline3.setBackground(new java.awt.Color(255, 255, 255));
+
+        lbl_login2.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        lbl_login2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_login2.setText("Quên mật khẩu");
+
+        lbl_user2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_user2.setText("Chúng tôi đã gửi một mã xác nhận đến Email của bạn.");
+
+        txt_code.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_code.setToolTipText("");
+        txt_code.setBorder(null);
+        txt_code.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_codeKeyPressed(evt);
+            }
+        });
+
+        lbl_pass2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_pass2.setForeground(new java.awt.Color(255, 51, 51));
+        lbl_pass2.setText("Nhập mã xác nhận");
+
+        btn_login2.setBackground(new java.awt.Color(0, 0, 0));
+        btn_login2.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
+        btn_login2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8_next_page_32px_1.png"))); // NOI18N
+        btn_login2.setText("Tiếp Theo");
+        btn_login2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_login2ActionPerformed(evt);
+            }
+        });
+
+        lbl_tbcode.setFont(new java.awt.Font("Tahoma", 3, 16)); // NOI18N
+        lbl_tbcode.setForeground(new java.awt.Color(255, 51, 51));
+
+        javax.swing.GroupLayout pnlTimeline3Layout = new javax.swing.GroupLayout(pnlTimeline3);
+        pnlTimeline3.setLayout(pnlTimeline3Layout);
+        pnlTimeline3Layout.setHorizontalGroup(
+            pnlTimeline3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                .addGroup(pnlTimeline3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                        .addGap(112, 112, 112)
+                        .addComponent(lbl_login2, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lbl_user2))
+                    .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(pnlTimeline3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                                .addComponent(lbl_pass2, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(pnlTimeline3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jSeparator5, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txt_code, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                                .addComponent(btn_login2, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(53, 53, 53)))))
+                .addContainerGap(14, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlTimeline3Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(lbl_tbcode, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(77, 77, 77))
+        );
+        pnlTimeline3Layout.setVerticalGroup(
+            pnlTimeline3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline3Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(lbl_login2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                .addComponent(lbl_user2)
+                .addGap(55, 55, 55)
+                .addGroup(pnlTimeline3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lbl_pass2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txt_code, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lbl_tbcode, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
+                .addComponent(btn_login2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(121, 121, 121))
+        );
+
+        javax.swing.GroupLayout pnlNews2Layout = new javax.swing.GroupLayout(pnlNews2);
+        pnlNews2.setLayout(pnlNews2Layout);
+        pnlNews2Layout.setHorizontalGroup(
+            pnlNews2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 452, Short.MAX_VALUE)
+            .addGroup(pnlNews2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlNews2Layout.createSequentialGroup()
+                    .addComponent(pnlTimeline3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        pnlNews2Layout.setVerticalGroup(
+            pnlNews2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 537, Short.MAX_VALUE)
+            .addGroup(pnlNews2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(pnlTimeline3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnlBody.add(pnlNews2, "card4");
+
+        pnlNews3.setBackground(new java.awt.Color(245, 245, 245));
+
+        pnlTimeline5.setBackground(new java.awt.Color(255, 255, 255));
+
+        lbl_login4.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        lbl_login4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_login4.setText("Quên mật khẩu");
+
+        lbl_user4.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_user4.setText("Mật khẩu mới :");
+
+        lbl_pass4.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_pass4.setText("Nhập lại mật khẩu :");
+
+        txt_mk2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_mk2.setBorder(null);
+        txt_mk2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_mk2KeyPressed(evt);
+            }
+        });
+
+        btn_login4.setBackground(new java.awt.Color(0, 0, 0));
+        btn_login4.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
+        btn_login4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8_checkmark_32px.png"))); // NOI18N
+        btn_login4.setText("Đồng Ý");
+        btn_login4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_login4ActionPerformed(evt);
+            }
+        });
+
+        lbl_tbdmk.setFont(new java.awt.Font("Tahoma", 3, 16)); // NOI18N
+        lbl_tbdmk.setForeground(new java.awt.Color(255, 51, 51));
+
+        txt_mk1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_mk1.setBorder(null);
+        txt_mk1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_mk1KeyPressed(evt);
+            }
+        });
+
+        lbl_user7.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lbl_user7.setText("Tên tài khoản :");
+
+        txt_tentk.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        txt_tentk.setToolTipText("");
+        txt_tentk.setBorder(null);
+        txt_tentk.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_tentkKeyPressed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlTimeline5Layout = new javax.swing.GroupLayout(pnlTimeline5);
+        pnlTimeline5.setLayout(pnlTimeline5Layout);
+        pnlTimeline5Layout.setHorizontalGroup(
+            pnlTimeline5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlTimeline5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(pnlTimeline5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jSeparator8)
+                    .addComponent(jSeparator7)
+                    .addComponent(txt_mk2)
+                    .addComponent(lbl_tbdmk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbl_pass4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbl_user4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txt_mk1, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .addComponent(lbl_user7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txt_tentk)
+                    .addComponent(jSeparator9, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(77, 77, 77))
+            .addGroup(pnlTimeline5Layout.createSequentialGroup()
+                .addGroup(pnlTimeline5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTimeline5Layout.createSequentialGroup()
+                        .addGap(112, 112, 112)
+                        .addComponent(lbl_login4, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlTimeline5Layout.createSequentialGroup()
+                        .addGap(104, 104, 104)
+                        .addComponent(btn_login4, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(106, Short.MAX_VALUE))
+        );
+        pnlTimeline5Layout.setVerticalGroup(
+            pnlTimeline5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline5Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(lbl_login4)
+                .addGap(37, 37, 37)
+                .addComponent(lbl_user7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_tentk, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(lbl_user4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_mk1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(lbl_pass4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_mk2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lbl_tbdmk, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn_login4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(35, 35, 35))
+        );
+
+        javax.swing.GroupLayout pnlNews3Layout = new javax.swing.GroupLayout(pnlNews3);
+        pnlNews3.setLayout(pnlNews3Layout);
+        pnlNews3Layout.setHorizontalGroup(
+            pnlNews3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 452, Short.MAX_VALUE)
+            .addGroup(pnlNews3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlNews3Layout.createSequentialGroup()
+                    .addComponent(pnlTimeline5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        pnlNews3Layout.setVerticalGroup(
+            pnlNews3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 537, Short.MAX_VALUE)
+            .addGroup(pnlNews3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(pnlTimeline5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnlBody.add(pnlNews3, "card4");
+
+        pnlNews4.setBackground(new java.awt.Color(245, 245, 245));
+
+        pnlTimeline6.setBackground(new java.awt.Color(255, 255, 255));
+
+        lbl_login5.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        lbl_login5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_login5.setText("Quên mật khẩu");
+
+        lbl_user5.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
+        lbl_user5.setText("Bạn đã thay đổi mật khẩu thành công !");
+
+        btn_login5.setBackground(new java.awt.Color(0, 0, 0));
+        btn_login5.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
+        btn_login5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8_login_32px.png"))); // NOI18N
+        btn_login5.setText("Đăng Nhập");
+        btn_login5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_login5ActionPerformed(evt);
+            }
+        });
+
+        lbl_user6.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
+        lbl_user6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8_ok_48px.png"))); // NOI18N
+
+        javax.swing.GroupLayout pnlTimeline6Layout = new javax.swing.GroupLayout(pnlTimeline6);
+        pnlTimeline6.setLayout(pnlTimeline6Layout);
+        pnlTimeline6Layout.setHorizontalGroup(
+            pnlTimeline6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline6Layout.createSequentialGroup()
+                .addGroup(pnlTimeline6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTimeline6Layout.createSequentialGroup()
+                        .addGap(112, 112, 112)
+                        .addComponent(lbl_login5, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlTimeline6Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(lbl_user6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lbl_user5, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(38, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlTimeline6Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(btn_login5, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(103, 103, 103))
+        );
+        pnlTimeline6Layout.setVerticalGroup(
+            pnlTimeline6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTimeline6Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(lbl_login5)
+                .addGroup(pnlTimeline6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTimeline6Layout.createSequentialGroup()
+                        .addGap(90, 90, 90)
+                        .addComponent(lbl_user6))
+                    .addGroup(pnlTimeline6Layout.createSequentialGroup()
+                        .addGap(103, 103, 103)
+                        .addComponent(lbl_user5)))
+                .addGap(74, 74, 74)
+                .addComponent(btn_login5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(184, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout pnlNews4Layout = new javax.swing.GroupLayout(pnlNews4);
+        pnlNews4.setLayout(pnlNews4Layout);
+        pnlNews4Layout.setHorizontalGroup(
+            pnlNews4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 452, Short.MAX_VALUE)
+            .addGroup(pnlNews4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlNews4Layout.createSequentialGroup()
+                    .addComponent(pnlTimeline6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        pnlNews4Layout.setVerticalGroup(
+            pnlNews4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 537, Short.MAX_VALUE)
+            .addGroup(pnlNews4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(pnlTimeline6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnlBody.add(pnlNews4, "card4");
 
         jLabel10.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jLabel10.setText("https://thpthadong.edu.vn");
@@ -366,62 +986,42 @@ public class dangnhap extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel10)
-                .addGap(27, 27, 27)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGap(0, 31, Short.MAX_VALUE)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(57, 57, 57))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(140, 140, 140)
-                .addComponent(lbl_login)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(102, 102, 102)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap(69, Short.MAX_VALUE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(98, 98, 98))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addGap(27, 27, 27)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(24, 24, 24))))
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel7Layout.createSequentialGroup()
+                    .addComponent(pnlBody, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_login)
-                .addGap(29, 29, 29)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 548, Short.MAX_VALUE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel7Layout.createSequentialGroup()
+                    .addGap(102, 102, 102)
+                    .addComponent(pnlBody, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(41, Short.MAX_VALUE)))
         );
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(47, 47, 47))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(45, 45, 45)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, 450, 680));
+        getContentPane().add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, 450, 680));
 
         setSize(new java.awt.Dimension(923, 710));
         setLocationRelativeTo(null);
@@ -472,22 +1072,29 @@ public class dangnhap extends javax.swing.JFrame {
 
     private void pas_PassWordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pas_PassWordKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            Dashboard dsh = new Dashboard();
-            this.dispose();
-            dsh.setVisible(true);
+            this.Login();
         }
     }//GEN-LAST:event_pas_PassWordKeyPressed
 
     private void btn_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loginActionPerformed
-  this.Login();
+        this.Login();
     }//GEN-LAST:event_btn_loginActionPerformed
+
+    private void lbl_quenmkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_quenmkMouseClicked
+        pnlBody.removeAll();
+        pnlBody.repaint();
+        pnlBody.revalidate();
+        pnlBody.add(pnlNews1);
+        pnlBody.repaint();
+        pnlBody.revalidate();
+    }//GEN-LAST:event_lbl_quenmkMouseClicked
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
 
         String selected = jComboBox1.getSelectedItem().toString();
 
         if (selected.equals("English")) {
-            lbl_login.setText("    Log in");
+            lbl_login.setText("Log in");
             lbl_user.setText("Username :");
             lbl_pass.setText("Password :");
             btn_login.setText("Log In");
@@ -503,11 +1110,52 @@ public class dangnhap extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
-    private void lbl_quenmkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_quenmkMouseClicked
-        this.dispose();
-        quenmatkhau mk = new quenmatkhau();
-        mk.setVisible(true);
-    }//GEN-LAST:event_lbl_quenmkMouseClicked
+    private void txt_userKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_userKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_userKeyPressed
+
+    private void btn_login1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_login1ActionPerformed
+        this.checkuser(code);
+    }//GEN-LAST:event_btn_login1ActionPerformed
+
+    private void btn_login2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_login2ActionPerformed
+        this.checkcode(code);
+
+    }//GEN-LAST:event_btn_login2ActionPerformed
+
+    private void txt_codeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_codeKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_codeKeyPressed
+
+    private void txt_mk2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_mk2KeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_mk2KeyPressed
+
+    private void btn_login4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_login4ActionPerformed
+
+        this.updatepass();
+    }//GEN-LAST:event_btn_login4ActionPerformed
+
+    private void txt_mk1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_mk1KeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_mk1KeyPressed
+
+    private void btn_login5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_login5ActionPerformed
+        pnlBody.removeAll();
+        pnlBody.repaint();
+        pnlBody.revalidate();
+        pnlBody.add(pnlNews);
+        pnlBody.repaint();
+        pnlBody.revalidate();
+    }//GEN-LAST:event_btn_login5ActionPerformed
+
+    private void txt_emailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_emailKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_emailKeyPressed
+
+    private void txt_tentkKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_tentkKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_tentkKeyPressed
 
     /**
      * @param args the command line arguments
@@ -536,6 +1184,20 @@ public class dangnhap extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -549,26 +1211,69 @@ public class dangnhap extends javax.swing.JFrame {
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnMinimize;
     private javax.swing.JButton btn_login;
+    private javax.swing.JButton btn_login1;
+    private javax.swing.JButton btn_login2;
+    private javax.swing.JButton btn_login4;
+    private javax.swing.JButton btn_login5;
     private javax.swing.JLabel img1;
     private javax.swing.JLabel img2;
     private javax.swing.JLabel img3;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JSeparator jSeparator7;
+    private javax.swing.JSeparator jSeparator8;
+    private javax.swing.JSeparator jSeparator9;
     private javax.swing.JLabel lbl_hotro;
     private javax.swing.JLabel lbl_login;
+    private javax.swing.JLabel lbl_login1;
+    private javax.swing.JLabel lbl_login2;
+    private javax.swing.JLabel lbl_login4;
+    private javax.swing.JLabel lbl_login5;
     private javax.swing.JLabel lbl_pass;
+    private javax.swing.JLabel lbl_pass1;
+    private javax.swing.JLabel lbl_pass2;
+    private javax.swing.JLabel lbl_pass4;
     private javax.swing.JLabel lbl_quenmk;
+    private javax.swing.JLabel lbl_tbcode;
+    private javax.swing.JLabel lbl_tbdmk;
+    private javax.swing.JLabel lbl_tbuser;
     private javax.swing.JLabel lbl_user;
+    private javax.swing.JLabel lbl_user1;
+    private javax.swing.JLabel lbl_user2;
+    private javax.swing.JLabel lbl_user4;
+    private javax.swing.JLabel lbl_user5;
+    private javax.swing.JLabel lbl_user6;
+    private javax.swing.JLabel lbl_user7;
     private javax.swing.JPanel left;
     private javax.swing.JPasswordField pas_PassWord;
+    private javax.swing.JPanel pnlBody;
     private javax.swing.JPanel pnlHeader;
+    private javax.swing.JPanel pnlNews;
+    private javax.swing.JPanel pnlNews1;
+    private javax.swing.JPanel pnlNews2;
+    private javax.swing.JPanel pnlNews3;
+    private javax.swing.JPanel pnlNews4;
+    private javax.swing.JPanel pnlTimeline1;
+    private javax.swing.JPanel pnlTimeline2;
+    private javax.swing.JPanel pnlTimeline3;
+    private javax.swing.JPanel pnlTimeline5;
+    private javax.swing.JPanel pnlTimeline6;
     private javax.swing.JTextField txt_UserName;
+    private javax.swing.JTextField txt_code;
+    private javax.swing.JTextField txt_email;
+    private javax.swing.JPasswordField txt_mk1;
+    private javax.swing.JPasswordField txt_mk2;
+    private javax.swing.JLabel txt_tbdn;
+    private javax.swing.JTextField txt_tentk;
+    private javax.swing.JTextField txt_user;
     // End of variables declaration//GEN-END:variables
+
 }

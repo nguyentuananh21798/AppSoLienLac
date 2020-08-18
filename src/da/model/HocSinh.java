@@ -16,7 +16,7 @@ public class HocSinh {
     private String maHocSinh;
     private String hoTen;
     private boolean gioiTinh;
-    private String ngaySinh;
+    private Date ngaySinh;
     private String diaChi;
     private String dienThoai;
     private String email;
@@ -24,13 +24,21 @@ public class HocSinh {
     private String lop;
     private String danToc;
     private String tongiao;
-    private Date ngayVaoDoan=DateHelper.now();
+    private Date ngayVaoDoan;
     private String trangThai;
+    private String htBO;
+    private String htMe;
+    private String sdtBo;
+    private String sdtMe;
+    private String dvctBo;
+    private String dvctMe;
+    private  boolean xoa;
+    private byte[] picture;
 
     public HocSinh() {
     }
 
-    public HocSinh(String maHocSinh, String hoTen, boolean gioiTinh, String ngaySinh, String diaChi, String dienThoai, String email, String cmnd, String lop, String danToc, String tongiao, String trangThai) {
+    public HocSinh(String maHocSinh, String hoTen, boolean gioiTinh, Date ngaySinh, String diaChi, String dienThoai, String email, String cmnd, String lop, String danToc, String tongiao, Date ngayVaoDoan, String trangThai, String htBO, String htMe, String sdtBo, String sdtMe, String dvctBo, String dvctMe, boolean xoa, byte[] image) {
         this.maHocSinh = maHocSinh;
         this.hoTen = hoTen;
         this.gioiTinh = gioiTinh;
@@ -42,7 +50,16 @@ public class HocSinh {
         this.lop = lop;
         this.danToc = danToc;
         this.tongiao = tongiao;
+        this.ngayVaoDoan = ngayVaoDoan;
         this.trangThai = trangThai;
+        this.htBO = htBO;
+        this.htMe = htMe;
+        this.sdtBo = sdtBo;
+        this.sdtMe = sdtMe;
+        this.dvctBo = dvctBo;
+        this.dvctMe = dvctMe;
+        this.xoa = xoa;
+        this.picture = picture;
     }
 
     public String getMaHocSinh() {
@@ -69,11 +86,11 @@ public class HocSinh {
         this.gioiTinh = gioiTinh;
     }
 
-    public String getNgaySinh() {
+    public Date getNgaySinh() {
         return ngaySinh;
     }
 
-    public void setNgaySinh(String ngaySinh) {
+    public void setNgaySinh(Date ngaySinh) {
         this.ngaySinh = ngaySinh;
     }
 
@@ -148,9 +165,88 @@ public class HocSinh {
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
     }
+
+    public String getHtBO() {
+        return htBO;
+    }
+
+    public void setHtBO(String htBO) {
+        this.htBO = htBO;
+    }
+
+    public String getHtMe() {
+        return htMe;
+    }
+
+    public void setHtMe(String htMe) {
+        this.htMe = htMe;
+    }
+
+    public String getSdtBo() {
+        return sdtBo;
+    }
+
+    public void setSdtBo(String sdtBo) {
+        this.sdtBo = sdtBo;
+    }
+
+    public String getSdtMe() {
+        return sdtMe;
+    }
+
+    public void setSdtMe(String sdtMe) {
+        this.sdtMe = sdtMe;
+    }
+
+    public String getDvctBo() {
+        return dvctBo;
+    }
+
+    public void setDvctBo(String dvctBo) {
+        this.dvctBo = dvctBo;
+    }
+
+    public String getDvctMe() {
+        return dvctMe;
+    }
+
+    public void setDvctMe(String dvctMe) {
+        this.dvctMe = dvctMe;
+    }
+
+    public boolean isXoa() {
+        return xoa;
+    }
+
+    public void setXoa(boolean xoa) {
+        this.xoa = xoa;
+    }
+
+    public byte[] getImage() {
+        return picture;
+    }
+
+    public void setImage(byte[] picture) {
+        this.picture = picture;
+    }
+
+  
+
+  
+
     
     
     
+    
+
+   
+    
+
+  
+   
+   
+    
+   
     
     
     

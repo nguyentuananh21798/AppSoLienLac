@@ -8,6 +8,7 @@ package da.dao;
 import da.helper.Encryption;
 import da.helper.JdbcHelper;
 import da.model.User;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -68,6 +69,12 @@ public class UserDAO {
         model.setPassWord(rs.getString("pass"));
         model.setRole(rs.getString("roles"));
         model.setID(rs.getString("ID"));
+        model.setEmail(rs.getString("email"));
         return model;
+    }
+    
+    public void update2(String tk,String mk ) {
+        String sql= "UPDATE account SET  pass=? WHERE  username =?";
+        JdbcHelper.executeUpdate(sql, mk, tk);
     }
 }
